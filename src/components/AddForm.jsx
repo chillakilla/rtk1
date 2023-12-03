@@ -2,19 +2,33 @@ import { useState } from "react";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
 import Button from "./common/Button";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addLetter } from "redux/modules/letters";
+import axios from "axios";
+import { logoutSuccess } from "redux/modules/authSlice";
 
 export default function AddForm() {
-  // const { setLetters } = useContext(LetterContext);
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.auth.user);
   const [nickname, setNickname] = useState("");
   const [content, setContent] = useState("");
   const [member, setMember] = useState("카리나");
 
-  const onAddLetter = (event) => {
+  const initialNickname = user ? user.nickname : "";
+  const [initialNicknameSet, setInitialNicknameSet] = useState(false);
+
+  if (user && !initialNicknameSet) {
+    setNickname(user.nickname);
+    setInitialNicknameSet(true);
+  }
+
+  const onAddLetter = async (event) => {
     event.preventDefault();
+
+    if (!user) {
+      return alert("로그인이 필요합니다.");
+    }
+
     if (!nickname || !content) return alert("닉네임과 내용은 필수값입니다.");
 
     const newLetter = {
@@ -24,24 +38,30 @@ export default function AddForm() {
       avatar: null,
       writedTo: member,
       createdAt: new Date(),
+      userId: user.id,
     };
+    console.log(newLetter);
 
-    dispatch(addLetter(newLetter));
-    setNickname("");
-    setContent("");
+    try {
+      await axios.post("http://localhost:5000/letters", newLetter);
+      dispatch(addLetter(newLetter));
+      setNickname("");
+      setContent("");
+    } catch (error) {
+      console.error("error adding letter", error);
+
+      if (error.response && error.response.status === 401) {
+        dispatch(logoutSuccess());
+      }
+    }
   };
 
   return (
     <Form onSubmit={onAddLetter}>
-      <InputWrapper>
+      <NicknameWrapper>
         <label>닉네임:</label>
-        <input
-          onChange={(event) => setNickname(event.target.value)}
-          value={nickname}
-          placeholder="최대 20글자까지 작성할 수 있습니다."
-          maxLength={20}
-        />
-      </InputWrapper>
+        <NicknameText>{user ? user.nickname : ""}</NicknameText>
+      </NicknameWrapper>
       <InputWrapper>
         <label>내용:</label>
         <textarea
@@ -66,10 +86,11 @@ export default function AddForm() {
 }
 
 const Form = styled.form`
-  background-color: gray;
+  background-color: black;
   padding: 12px;
   display: flex;
   flex-direction: column;
+  color: white;
   gap: 12px;
   width: 500px;
   border-radius: 12px;
@@ -99,4 +120,15 @@ const SelectWrapper = styled(InputWrapper)`
   & label {
     width: 170px;
   }
+`;
+
+const NicknameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+`;
+
+const NicknameText = styled.p`
+  font-weight: bold;
+  color: white;
 `;

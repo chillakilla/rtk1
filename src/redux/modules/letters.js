@@ -1,42 +1,46 @@
-import fakeData from "fakeData.json";
-// 팬레터 추가
-const ADD_LETTER = "letters/ADD_LETTER";
-// 팬레터 삭제
-const DELETE_LETTER = "letters/DELETE_LETTER";
-// 팬레터 수정
-const EDIT_LETTER = "letters/EDIT_LETTER";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-export const addLetter = (payload) => {
-  return { type: ADD_LETTER, payload };
-};
-export const deleteLetter = (payload) => {
-  return { type: DELETE_LETTER, payload };
-};
-export const editLetter = (payload) => {
-  return { type: EDIT_LETTER, payload };
-};
+// const initialState = fakeData;
 
-const initialState = fakeData;
+export const fetchLetters = createAsyncThunk(
+  "letters/fetchLetters",
+  async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/letters");
+      return response.data;
+    } catch (error) {
+      console.error("error fetching letters:", error);
+      throw error;
+    }
+  }
+);
 
-const letters = (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_LETTER:
-      const newLetter = action.payload;
-      return [newLetter, ...state];
-    case DELETE_LETTER:
-      const letterId = action.payload;
-      return state.filter((letter) => letter.id !== letterId);
-    case EDIT_LETTER:
-      const { id, editingText } = action.payload;
+const letterSlice = createSlice({
+  name: "letters",
+  initialState: [],
+  reducers: {
+    addLetter: (state, action) => {
+      return [action.payload, ...state];
+    },
+    deleteLetter: (state, action) => {
+      return state.filter((letter) => letter.id !== action.payload);
+    },
+    editLetter: (state, action) => {
       return state.map((letter) => {
-        if (letter.id === id) {
-          return { ...letter, content: editingText };
+        if (letter.id === action.payload.id) {
+          return { ...letter, content: action.payload.editingText };
         }
         return letter;
       });
-    default:
-      return state;
-  }
-};
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchLetters.fulfilled, (state, action) => {
+      return action.payload;
+    });
+  },
+});
 
-export default letters;
+export default letterSlice.reducer;
+export const { addLetter, deleteLetter, editLetter } = letterSlice.actions;

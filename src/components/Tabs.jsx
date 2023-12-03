@@ -22,9 +22,8 @@ export default function Tabs() {
 }
 
 const TabsWrapper = styled.ul`
-  background-color: gray;
+  background-color: transparent;
   display: flex;
-  justify-content: space-between;
   padding: 12px;
   gap: 12px;
   border-radius: 12px;
@@ -43,7 +42,6 @@ const Tab = styled.li`
       color: white;
     `;
   }}
-
   font-size: 20px;
   width: 80px;
   text-align: center;

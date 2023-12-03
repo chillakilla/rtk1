@@ -10,16 +10,23 @@ import { deleteLetter, editLetter } from "redux/modules/letters";
 export default function Detail() {
   const dispatch = useDispatch();
   const letters = useSelector((state) => state.letters);
-
   const [isEditing, setIsEditing] = useState(false);
   const [editingText, setEditingText] = useState("");
   const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.auth.user);
   const { id } = useParams();
-  const { avatar, nickname, createdAt, writedTo, content } = letters.find(
-    (letter) => letter.id === id
-  );
+  const letter = letters.find((letter) => letter.id === id);
+  const { avatar, nickname, createdAt, writedTo, content } = letter;
+
+  const isOwner = currentUser && letter && currentUser.userId === letter.userId;
+  console.log(isOwner);
 
   const onDeleteBtn = () => {
+    if (!isOwner) {
+      alert("권한이 없습니다.");
+      return;
+    }
+
     const answer = window.confirm("정말로 삭제하시겠습니까?");
     if (!answer) return;
 
@@ -27,6 +34,11 @@ export default function Detail() {
     navigate("/");
   };
   const onEditDone = () => {
+    if (!isOwner) {
+      alert("권한이 없습니다.");
+      return;
+    }
+
     if (!editingText) return alert("수정사항이 없습니다.");
 
     dispatch(editLetter({ id, editingText }));
