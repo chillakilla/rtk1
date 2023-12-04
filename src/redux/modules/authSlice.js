@@ -1,12 +1,12 @@
 import axios from "axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-const apiUrl = "https://moneyfulpublicpolicy.co.kr";
+export const apiUrl = "https://moneyfulpublicpolicy.co.kr";
 
 export const authSlice = createSlice({
   name: "auth",
   initialState: {
-    isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
+    isLoggedIn: false,
     user: JSON.parse(localStorage.getItem("user")) || null,
     accessToken: localStorage.getItem("accessToken") || null,
   },
@@ -16,6 +16,7 @@ export const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
 
+      localStorage.removeItem("nickname", "avatar", "userId");
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");

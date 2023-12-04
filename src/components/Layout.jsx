@@ -18,11 +18,13 @@ function Layout() {
   };
   return (
     <NavBar>
-      <HomeButton>홈으로</HomeButton>
+      <HomeButton onClick={() => navigate("/")}>홈으로</HomeButton>
       <ButtonContainer>
         {isLoggedIn ? (
           <>
-            <ProfileButton>내 프로필</ProfileButton>
+            <ProfileButton onClick={() => navigate("/mypage")}>
+              내 프로필
+            </ProfileButton>
             <AuthButton onClick={handleLogout}>로그아웃</AuthButton>
           </>
         ) : (

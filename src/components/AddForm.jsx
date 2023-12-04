@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { v4 as uuid } from "uuid";
 import Button from "./common/Button";
@@ -14,8 +14,22 @@ export default function AddForm() {
   const [content, setContent] = useState("");
   const [member, setMember] = useState("카리나");
 
-  const initialNickname = user ? user.nickname : "";
   const [initialNicknameSet, setInitialNicknameSet] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/letters");
+        const fetchLetters = response.data;
+        const allLetters = [...fetchLetters];
+        dispatch(addLetter(allLetters));
+      } catch (error) {
+        console.error("fethcing error", error);
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
 
   if (user && !initialNicknameSet) {
     setNickname(user.nickname);

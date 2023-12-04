@@ -13,20 +13,12 @@ export default function Detail() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingText, setEditingText] = useState("");
   const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.auth.user);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const { id } = useParams();
   const letter = letters.find((letter) => letter.id === id);
   const { avatar, nickname, createdAt, writedTo, content } = letter;
 
-  const isOwner = currentUser && letter && currentUser.userId === letter.userId;
-  console.log(isOwner);
-
   const onDeleteBtn = () => {
-    if (!isOwner) {
-      alert("권한이 없습니다.");
-      return;
-    }
-
     const answer = window.confirm("정말로 삭제하시겠습니까?");
     if (!answer) return;
 
@@ -34,13 +26,7 @@ export default function Detail() {
     navigate("/");
   };
   const onEditDone = () => {
-    if (!isOwner) {
-      alert("권한이 없습니다.");
-      return;
-    }
-
     if (!editingText) return alert("수정사항이 없습니다.");
-
     dispatch(editLetter({ id, editingText }));
     setIsEditing(false);
     setEditingText("");
@@ -62,27 +48,30 @@ export default function Detail() {
           <time>{getFormattedDate(createdAt)}</time>
         </UserInfo>
         <ToMember>To: {writedTo}</ToMember>
-        {isEditing ? (
-          <>
-            <Textarea
-              autoFocus
-              defaultValue={content}
-              onChange={(event) => setEditingText(event.target.value)}
-            />
-            <BtnsWrapper>
-              <Button text="취소" onClick={() => setIsEditing(false)} />
-              <Button text="수정완료" onClick={onEditDone} />
-            </BtnsWrapper>
-          </>
-        ) : (
-          <>
-            <Content>{content}</Content>
-            <BtnsWrapper>
-              <Button text="수정" onClick={() => setIsEditing(true)} />
-              <Button text="삭제" onClick={onDeleteBtn} />
-            </BtnsWrapper>
-          </>
-        )}
+
+        {isLoggedIn ? (
+          isEditing ? (
+            <>
+              <Textarea
+                autoFocus
+                defaultValue={content}
+                onChange={(event) => setEditingText(event.target.value)}
+              />
+              <BtnsWrapper>
+                <Button text="취소" onClick={() => setIsEditing(false)} />
+                <Button text="수정완료" onClick={onEditDone} />
+              </BtnsWrapper>
+            </>
+          ) : (
+            <>
+              <Content>{content}</Content>
+              <BtnsWrapper>
+                <Button text="수정" onClick={() => setIsEditing(true)} />
+                <Button text="삭제" onClick={onDeleteBtn} />
+              </BtnsWrapper>
+            </>
+          )
+        ) : null}
       </DetailWrapper>
     </Container>
   );
