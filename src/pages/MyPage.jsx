@@ -1,16 +1,19 @@
 import Layout from "components/Layout";
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 function MyPage() {
+  const user = useSelector((state) => state.auth.user);
+
   return (
     <div>
       <Layout />
       <ProfileContainer>
         <ProfileBox>
           <Title>프로필 관리</Title>
-          <ImageSection></ImageSection>
-          <Nickname>닉네임란</Nickname>
+          <ImageSection>{user?.avatar}</ImageSection>
+          <Nickname>{user?.nickname}</Nickname>
           <ContentSection>소개란입니다</ContentSection>
           <EditButton>수정하기</EditButton>
         </ProfileBox>
@@ -52,7 +55,7 @@ const ImageSection = styled.div`
   background-color: white;
 `;
 
-const Nickname = styled.span`
+const Nickname = styled.h2`
   width: 100px;
   height: 30px;
   background-color: lightcoral;

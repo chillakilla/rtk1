@@ -16,21 +16,6 @@ export default function AddForm() {
 
   const [initialNicknameSet, setInitialNicknameSet] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/letters");
-        const fetchLetters = response.data;
-        const allLetters = [...fetchLetters];
-        dispatch(addLetter(allLetters));
-      } catch (error) {
-        console.error("fethcing error", error);
-      }
-    };
-
-    fetchData();
-  }, [dispatch]);
-
   if (user && !initialNicknameSet) {
     setNickname(user.nickname);
     setInitialNicknameSet(true);
